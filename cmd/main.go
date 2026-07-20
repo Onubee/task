@@ -8,15 +8,19 @@ import (
 )
 
 func main() {
-	// 1. Загружаем конфиг
 	cfg := config.Load()
-	log.Printf("✅ Config loaded: %+v", cfg)
 
-	// 2. Создаем приложение (пока заглушка)
-	application := app.NewApp(cfg)
+	application, err := app.NewApp(cfg)
+	if err != nil {
+		log.Fatalf("❌ Failed to create app: %v", err)
+	}
+	defer func() {
+		if err := application.Close(); err != nil {
+			log.Printf("⚠️ Failed to close application: %v", err)
+		}
+	}()
 
-	// 3. Запускаем
 	if err := application.Run(); err != nil {
-		log.Fatalf("❌ App error: %v", err)
+		log.Fatalf("❌ Failed to run app: %v", err)
 	}
 }

@@ -20,6 +20,49 @@ services:
       - app-network
     restart: unless-stopped
 
+  app:
+    build: .
+    container_name: test-task-app
+    ports:
+      - "${SERVER_PORT}:${SERVER_PORT}"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: ${DB_PORT}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      DB_SSLMODE: ${DB_SSLMODE}
+      SERVER_HOST: ${SERVER_HOST}
+      SERVER_PORT: ${SERVER_PORT}
+      SOURCE1_URL: ${SOURCE1_URL}
+      SOURCE2_URL: ${SOURCE2_URL}
+      SOURCE3_URL: ${SOURCE3_URL}
+      CLIENTS_URL: ${CLIENTS_URL}
+      PAGE_START: ${PAGE_START}
+      PAGE_LIMIT: ${PAGE_LIMIT}
+      MAX_PAGES: ${MAX_PAGES}
+      MAX_CONCURRENT_REQUESTS: ${MAX_CONCURRENT_REQUESTS}
+      RATE_LIMIT: ${RATE_LIMIT}
+      BURST_SIZE: ${BURST_SIZE}
+      REQUEST_DELAY: ${REQUEST_DELAY}
+      DOWNLOAD_TIMEOUT: ${DOWNLOAD_TIMEOUT}
+      MAX_RETRIES: ${MAX_RETRIES}
+      RETRY_DELAY: ${RETRY_DELAY}
+      LOG_LEVEL: ${LOG_LEVEL}
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:${SERVER_PORT}/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - app-network
+    restart: unless-stopped
+
 volumes:
   postgres_data:
     name: test-task-postgres-data

@@ -192,3 +192,10 @@ func (a *App) waitForShutdown() error {
 	a.logger.Info("✅ Server shutdown gracefully")
 	return nil
 }
+
+func (a *App) Close() error {
+	if a.db != nil {
+		return a.db.Close()
+	}
+	return nil
+}
